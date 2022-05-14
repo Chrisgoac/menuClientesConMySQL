@@ -1,5 +1,6 @@
 import mysql.connector as sql
 
+# Configuración para conectar la base de datos.
 db = sql.connect(
     host="localhost",
     user="admin",
@@ -11,6 +12,7 @@ cursor = db.cursor()
 
 # Borrar
 # cursor.execute("DELETE FROM test")
+# db.commit()
 
 # AGREGAR VALOR:
 # cursor.execute("INSERT INTO test VALUES (nombre, apellido, dni)")
@@ -32,6 +34,17 @@ def showClientes():
 
     for i in r:
         print(f"{i[0]} {i[1]} con DNI {i[2]}.")
+
+
+def showDNI(dni):
+    cursor.execute(f"SELECT * FROM test WHERE DNI = {dni}")
+    r = cursor.fetchall()
+
+    for i in r:
+        # if i['dni'] == dni:
+        print(f"Se ha encontrado al siguiente cliente: {i[0]} {i[1]} con DNI {i[2]}.")
+        # return True
+    # return False
 
 
 def getLetra(dni):
@@ -87,6 +100,7 @@ def getLetra(dni):
 
 
 def addCliente(nombre, apellido, dni):
+    # TODO Comprobar si existen los datos
     cursor.execute(f"INSERT INTO test VALUES ('{nombre}', '{apellido}', '{dni}')")
     db.commit()
 
@@ -134,13 +148,6 @@ menuCliente()
 
 
 
-
-# def showDNI(lista, dni):
-#     for i in lista:
-#         if i['dni'] == dni:
-#             print(f"Se ha encontrado al siguiente cliente: {i['nombre']} {i['apellido']} con DNI {i['dni']}.")
-#             return True
-#     return False
 #
 #
 # def eraseDNI(lista, dni):
