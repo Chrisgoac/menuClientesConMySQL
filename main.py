@@ -1,3 +1,5 @@
+import hashlib as hl
+
 import mysql.connector as sql
 
 # Configuración para conectar la base de datos.
@@ -9,6 +11,22 @@ db = sql.connect(
 )
 
 cursor = db.cursor()
+
+# TODO Idea del proyecto
+# Base de datos: Nombre, apellido, DNI, contraseña, dinero en el banco, dinero fisico.
+# Menu admin:
+# 1 - Agregar nuevo cliente.
+#     - Nombre, apellido, DNI, contraseña, dinero en el banco, dinero en efectivo.
+# 2 - Mostrar todos los clientes.
+# 3 - Mostrar ciente por DNI.
+# 4 - Eliminar cliente.
+# 5 - Añadir dinero a cliente
+#     - En el banco
+#     - En efectivo
+# 6 - Salir.
+
+
+
 
 # Borrar
 # cursor.execute("DELETE FROM test")
@@ -130,12 +148,26 @@ def comprobarDNI(dni):
     return False
 
 
-def addCliente(nombre, apellido, dni):
+# def addCliente(nombre, apellido, dni):
+#     # Comprobar si existen los datos
+#     if not comprobarDNI(dni):
+#         # Agregar el usuario a la base de datos
+#         cursor.execute(f"INSERT INTO test VALUES ('{nombre}', '{apellido}', '{dni}')")
+#         db.commit()
+
+# Sistema de guardado de contraseñas
+
+
+def addClienteNew(nombre, apellido, dni, password, cPassword, banco, efectivo):
     # Comprobar si existen los datos
     if not comprobarDNI(dni):
         # Agregar el usuario a la base de datos
-        cursor.execute(f"INSERT INTO test VALUES ('{nombre}', '{apellido}', '{dni}')")
-        db.commit()
+        if password == cPassword:
+            cursor.execute(f"INSERT INTO test VALUES ('{nombre}', '{apellido}', '{dni}', '{password}', '{banco}', '{efectivo}')")
+            db.commit()
+        else:
+            print("ERROR: Las contraseñas no coinciden.")
+
 
 
 def menuCliente():
@@ -156,7 +188,14 @@ def menuCliente():
         apellido = input("Apellido del cliente: ")
         dni = int(input("DNI del cliente: "))
 
-        addCliente(nombre, apellido, dni)
+        passwd = hl.md5(input("Insertar la contraseña: ").encode("utf-8")).hexdigest()
+        cPasswd = hl.md5(input("Repetir la contraseña: ").encode("utf-8")).hexdigest()
+
+        banco = int(input("DNI del cliente: "))
+        efectivo = int(input("DNI del cliente: "))
+
+        addClienteNew(nombre, apellido, dni, passwd, cPasswd, banco, efectivo)
+
         menuCliente()
     elif opcion == 2:
         # Mostrar todos los clientes
