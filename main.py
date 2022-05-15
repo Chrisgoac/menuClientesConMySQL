@@ -2,6 +2,8 @@ import hashlib as hl
 
 import mysql.connector as sql
 
+activeUser = 0
+
 # Configuración para conectar la base de datos.
 db = sql.connect(
     host="localhost",
@@ -12,8 +14,9 @@ db = sql.connect(
 
 cursor = db.cursor()
 
-# TODO Idea del proyecto
-# Base de datos: Nombre, apellido, DNI, contraseña, dinero en el banco, dinero fisico.
+
+# Idea del proyecto
+# Base de datos: Nombre, apellido, DNI, contraseña, dinero en el banco, efectivo.
 # Menu admin:
 # 1 - Agregar nuevo cliente.
 #     - Nombre, apellido, DNI, contraseña, dinero en el banco, dinero en efectivo.
@@ -23,27 +26,30 @@ cursor = db.cursor()
 # 5 - Añadir dinero a cliente
 #     - En el banco
 #     - En efectivo
-# 6 - Salir.
+# 6 - Retirar dinero de un cliente
+#     - En el banco
+#     - En efectivo
+# 7 - Cerrar sesión
 
+# El usuario se identificará y se guardará una variable con active user | def para sacar/meter dinero y con ella la de un propio usuario
 
+def adminRemoveMoney(efectivobanco, dni, money):
+    cursor.execute(f"SELECT * FROM test WHERE DNI = {dni}")
+    r = cursor.fetchall()
 
+    if efectivobanco == "efectivo":
+        for i in r:
+            actualMoney = i[5]
+    elif efectivobanco == "banco":
+        for i in r:
+            actualMoney = i[4]
+    else:
+        print("ERROR (MENSAJE INTERNO): Se debe especificar efectivo o banco.")
 
-# Borrar
-# cursor.execute("DELETE FROM test")
-# db.commit()
-
-# AGREGAR VALOR:
-# cursor.execute("INSERT INTO test VALUES (nombre, apellido, dni)")
-
-# Guardar cambios
-# db.commit()
-
-# Seleccionar datos (Se puede añadir "WHERE (condicion)")
-# cursor.execute("SELECT * FROM test")
-
-# Ver el resultado de una selección
-# r = cursor.fetchall()
-# print(r)
+    if actualMoney > money:
+        newMoney = actualMoney - money
+    cursor.execute(f"UPDATE test SET {efectivobanco} = {newMoney} WHERE DNI = {dni}")
+    db.commit()
 
 
 def showClientes():
@@ -51,7 +57,8 @@ def showClientes():
     r = cursor.fetchall()
 
     for i in r:
-        print(f"{i[0]} {i[1]} con DNI {i[2]}{getLetra(i[2])}.")
+        print("------------------------------------------")
+        print(f"{getClienteByDNI(i[2])}\nDinero en el banco: {i[4]} \nDinero en efectivo: {i[5]}")
 
 
 def showDNI(dni):
@@ -59,7 +66,7 @@ def showDNI(dni):
     r = cursor.fetchall()
 
     for i in r:
-        print(f"Se ha encontrado al siguiente cliente: {i[0]} {i[1]} con DNI {i[2]}{getLetra(i[2])}.")
+        print(f"Se ha encontrado al siguiente cliente: {getClienteByDNI(i[2])}.")
         return True
     return False
 
@@ -120,9 +127,9 @@ def eraseDNI(dni):
     if comprobarDNI(dni):
         cursor.execute(f"DELETE FROM test WHERE DNI={dni}")
         db.commit()
-        print("El cliente ha sido eliminado correctamente.")
+        return True
     else:
-        print(f"No existe un cliente con DNI: {dni}{getLetra(dni)}")
+        return False
 
     # Método antiguo
     # cursor.execute(f"SELECT * FROM test WHERE DNI = {dni}")
@@ -137,13 +144,20 @@ def eraseDNI(dni):
     # return False
 
 
+def getClienteByDNI(dni):
+    cursor.execute(f"SELECT * FROM test WHERE DNI = {dni}")
+    r = cursor.fetchall()
+
+    for i in r:
+        return f"{i[0]} {i[1]} con DNI {dni}{getLetra(dni)}"
+
+
 def comprobarDNI(dni):
     # Comprobar si existe el DNI
     cursor.execute(f"SELECT * FROM test WHERE DNI = {dni}")
     r = cursor.fetchall()
 
     for i in r:
-        print(f"Existe un usuario con ese DNI: {i[0]} {i[1]}.")
         return True
     return False
 
@@ -163,11 +177,36 @@ def addClienteNew(nombre, apellido, dni, password, cPassword, banco, efectivo):
     if not comprobarDNI(dni):
         # Agregar el usuario a la base de datos
         if password == cPassword:
-            cursor.execute(f"INSERT INTO test VALUES ('{nombre}', '{apellido}', '{dni}', '{password}', '{banco}', '{efectivo}')")
+            cursor.execute(
+                f"INSERT INTO test VALUES ('{nombre}', '{apellido}', '{dni}', '{password}', '{banco}', '{efectivo}')")
             db.commit()
         else:
             print("ERROR: Las contraseñas no coinciden.")
+    else:
+        cursor.execute(f"SELECT * FROM test WHERE DNI = {dni}")
+        r = cursor.fetchall()
 
+        for i in r:
+            print(f"Se ha encontrado al usuario: {getClienteByDNI(dni)}.")
+
+
+def logIn():
+    usuario = int(input("DNI para iniciar esión: "))
+    if comprobarDNI(usuario):
+        passwd = hl.md5(input("Contraseña: ").encode("utf-8")).hexdigest()
+        cursor.execute(f"SELECT * FROM test WHERE DNI = {usuario}")
+        r = cursor.fetchall()
+
+        for i in r:
+            if i[3] == passwd:
+                print("Contraseña correcta.")
+                menuCliente()
+            else:
+                print("Contraseá INCORRECTA")
+                logIn()
+
+
+logIn()
 
 
 def menuCliente():
@@ -177,7 +216,9 @@ def menuCliente():
         2 - Mostrar todos los clientes.
         3 - Mostrar ciente por DNI.
         4 - Eliminar ciente.
-        5 - Salir.
+        5 - Add money
+        6 - Remove money
+        7 - Cerrar sesión.
         """)
 
     opcion = int(input("Elegir la opción a ejecutar: "))
@@ -191,8 +232,8 @@ def menuCliente():
         passwd = hl.md5(input("Insertar la contraseña: ").encode("utf-8")).hexdigest()
         cPasswd = hl.md5(input("Repetir la contraseña: ").encode("utf-8")).hexdigest()
 
-        banco = int(input("DNI del cliente: "))
-        efectivo = int(input("DNI del cliente: "))
+        banco = int(input("Dinero en el banco: "))
+        efectivo = int(input("Dinero en efectivo: "))
 
         addClienteNew(nombre, apellido, dni, passwd, cPasswd, banco, efectivo)
 
@@ -210,15 +251,21 @@ def menuCliente():
     elif opcion == 4:
         # Eliminar cliente
         dni = int(input("DNI del cliente que desea eliminar: "))
-        eraseDNI(dni)
+        if not eraseDNI(dni):
+            print(f"No existe un cliente con DNI: {dni}{getLetra(dni)}")
+        else:
+            print("El cliente ha sido eliminado correctamente.")
         menuCliente()
     elif opcion == 5:
-        # Salir del programa
+        # Remove money
+        menuCliente()
+    elif opcion == 6:
+        # Add money
+        menuCliente()
+    elif opcion == 7:
+        # Cerrar sesión
         print("Ha salido del programa correctamente.")
     else:
         # Opción incorrecta
         print("La opción no es correcta, por favor elige una opción válida.")
         menuCliente()
-
-
-menuCliente()
