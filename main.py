@@ -10,7 +10,6 @@ db = sql.connect(
 
 cursor = db.cursor()
 
-
 # Borrar
 # cursor.execute("DELETE FROM test")
 # db.commit()
@@ -34,7 +33,7 @@ def showClientes():
     r = cursor.fetchall()
 
     for i in r:
-        print(f"{i[0]} {i[1]} con DNI {i[2]}.")
+        print(f"{i[0]} {i[1]} con DNI {i[2]}{getLetra(i[2])}.")
 
 
 def showDNI(dni):
@@ -42,7 +41,7 @@ def showDNI(dni):
     r = cursor.fetchall()
 
     for i in r:
-        print(f"Se ha encontrado al siguiente cliente: {i[0]} {i[1]} con DNI {i[2]}.")
+        print(f"Se ha encontrado al siguiente cliente: {i[0]} {i[1]} con DNI {i[2]}{getLetra(i[2])}.")
         return True
     return False
 
@@ -100,22 +99,43 @@ def getLetra(dni):
 
 
 def eraseDNI(dni):
+    if comprobarDNI(dni):
+        cursor.execute(f"DELETE FROM test WHERE DNI={dni}")
+        db.commit()
+        print("El cliente ha sido eliminado correctamente.")
+    else:
+        print(f"No existe un cliente con DNI: {dni}{getLetra(dni)}")
+
+    # Método antiguo
+    # cursor.execute(f"SELECT * FROM test WHERE DNI = {dni}")
+    # r = cursor.fetchall()
+    #
+    # for i in r:
+    #     if i[2] == dni:
+    #         print(f"Se ha encontrado al siguiente cliente: {i[0]} {i[1]} con DNI {i[2]} y ha sido "
+    #               f"eliminado correctamente.")
+    #         # TODO Eliminar cliente
+    #         return True
+    # return False
+
+
+def comprobarDNI(dni):
+    # Comprobar si existe el DNI
     cursor.execute(f"SELECT * FROM test WHERE DNI = {dni}")
     r = cursor.fetchall()
 
     for i in r:
-        if i[2] == dni:
-            print(f"Se ha encontrado al siguiente cliente: {i[0]} {i[1]} con DNI {i[2]} y ha sido "
-                  f"eliminado correctamente.")
-            # TODO Eliminar cliente
-            return True
+        print(f"Existe un usuario con ese DNI: {i[0]} {i[1]}.")
+        return True
     return False
 
 
 def addCliente(nombre, apellido, dni):
-    # TODO Comprobar si existen los datos
-    cursor.execute(f"INSERT INTO test VALUES ('{nombre}', '{apellido}', '{dni}')")
-    db.commit()
+    # Comprobar si existen los datos
+    if not comprobarDNI(dni):
+        # Agregar el usuario a la base de datos
+        cursor.execute(f"INSERT INTO test VALUES ('{nombre}', '{apellido}', '{dni}')")
+        db.commit()
 
 
 def menuCliente():
@@ -151,8 +171,7 @@ def menuCliente():
     elif opcion == 4:
         # Eliminar cliente
         dni = int(input("DNI del cliente que desea eliminar: "))
-        if not eraseDNI(dni):
-            print(f"No se ha encontrado ningún cliente con DNI {dni}")
+        eraseDNI(dni)
         menuCliente()
     elif opcion == 5:
         # Salir del programa
