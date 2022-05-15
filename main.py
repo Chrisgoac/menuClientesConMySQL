@@ -10,6 +10,7 @@ db = sql.connect(
 
 cursor = db.cursor()
 
+
 # Borrar
 # cursor.execute("DELETE FROM test")
 # db.commit()
@@ -41,10 +42,9 @@ def showDNI(dni):
     r = cursor.fetchall()
 
     for i in r:
-        # if i['dni'] == dni:
         print(f"Se ha encontrado al siguiente cliente: {i[0]} {i[1]} con DNI {i[2]}.")
-        # return True
-    # return False
+        return True
+    return False
 
 
 def getLetra(dni):
@@ -99,6 +99,19 @@ def getLetra(dni):
         print("Error, el número de DNi que has especificado no es correcto.")
 
 
+def eraseDNI(dni):
+    cursor.execute(f"SELECT * FROM test WHERE DNI = {dni}")
+    r = cursor.fetchall()
+
+    for i in r:
+        if i[2] == dni:
+            print(f"Se ha encontrado al siguiente cliente: {i[0]} {i[1]} con DNI {i[2]} y ha sido "
+                  f"eliminado correctamente.")
+            # TODO Eliminar cliente
+            return True
+    return False
+
+
 def addCliente(nombre, apellido, dni):
     # TODO Comprobar si existen los datos
     cursor.execute(f"INSERT INTO test VALUES ('{nombre}', '{apellido}', '{dni}')")
@@ -124,42 +137,30 @@ def menuCliente():
         dni = int(input("DNI del cliente: "))
 
         addCliente(nombre, apellido, dni)
+        menuCliente()
     elif opcion == 2:
         # Mostrar todos los clientes
         showClientes()
+        menuCliente()
     elif opcion == 3:
         # Mostrar cliente por DNI
-        dni = input("DNI del cliente: ")
-        # if not showDNI(clientes, dni):
-        #     print(f"No se ha encontrado ningún cliente con DNI {dni}")
+        dni = int(input("DNI del cliente: "))
+        if not showDNI(dni):
+            print(f"No se ha encontrado ningún cliente con DNI {dni}")
+        menuCliente()
     elif opcion == 4:
         # Eliminar cliente
-        dni = input("DNI del cliente que desea eliminar: ")
-        # if not eraseDNI(clientes, dni):
-        #     print(f"No se ha encontrado ningún cliente con DNI {dni}")
+        dni = int(input("DNI del cliente que desea eliminar: "))
+        if not eraseDNI(dni):
+            print(f"No se ha encontrado ningún cliente con DNI {dni}")
+        menuCliente()
     elif opcion == 5:
         # Salir del programa
         print("Ha salido del programa correctamente.")
     else:
         # Opción incorrecta
         print("La opción no es correcta, por favor elige una opción válida.")
+        menuCliente()
+
 
 menuCliente()
-
-
-
-#
-#
-# def eraseDNI(lista, dni):
-#     for i in lista:
-#         if i['dni'] == dni:
-#             print(f"Se ha encontrado al siguiente cliente: {i['nombre']} {i['apellido']} con DNI {i['dni']} y ha sido "
-#                   f"eliminado correctamente.")
-#             lista.remove(i)
-#             return True
-#     return False
-#
-#
-
-
-
