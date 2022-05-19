@@ -276,6 +276,24 @@ def menuAdmin():
         menuCliente()
     elif opcion == 5:
         # Remove money
+        print("\tQuitar dinero\n1 - Banco\n2 - Efectivo\n0 - Salir\n")
+        mOption = int(input("Opción a realizar: "))
+
+        dniCliente = int(input("Cliente al que desea retirar el dinero: "))
+        if not comprobarDNI(dniCliente):
+            menuCliente()
+
+        howMuchMoney = int(input("¿Cúanto dinero desea quitar? "))
+
+        if mOption == 0:
+            # Salir
+
+        elif mOption == 1:
+            # Quitar del banco
+
+        elif mOption == 2:
+            # Quitar efectivo
+
         menuCliente()
     elif opcion == 6:
         # Add money
