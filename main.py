@@ -62,6 +62,22 @@ def adminRemoveMoney(efectivobanco, dni, money):
     db.commit()
 
 
+def getDineroBanco(dni):
+    cursor.execute(f"SELECT * FROM test WHERE dni={dni}")
+    r = cursor.fetchall()
+
+    for i in r:
+        return i[4]
+
+
+def getDineroEfectivo(dni):
+    cursor.execute(f"SELECT * FROM test WHERE dni={dni}")
+    r = cursor.fetchall()
+
+    for i in r:
+        return i[5]
+
+
 def showClientes():
     cursor.execute("SELECT * FROM test")
     r = cursor.fetchall()
@@ -255,17 +271,17 @@ def menuAdmin():
 
         addClienteNew(nombre, apellido, dni, passwd, cPasswd, banco, efectivo)
 
-        menuCliente()
+        menuAdmin()
     elif opcion == 2:
         # Mostrar todos los clientes
         showClientes()
-        menuCliente()
+        menuAdmin()
     elif opcion == 3:
         # Mostrar cliente por DNI
         dni = int(input("DNI del cliente: "))
         if not showDNI(dni):
             print(f"No se ha encontrado ningún cliente con DNI {dni}")
-        menuCliente()
+        menuAdmin()
     elif opcion == 4:
         # Eliminar cliente
         dni = int(input("DNI del cliente que desea eliminar: "))
@@ -273,7 +289,7 @@ def menuAdmin():
             print(f"No existe un cliente con DNI: {dni}{getLetra(dni)}")
         else:
             print("El cliente ha sido eliminado correctamente.")
-        menuCliente()
+        menuAdmin()
     elif opcion == 5:
         # Remove money
         print("\tQuitar dinero\n1 - Banco\n2 - Efectivo\n0 - Salir\n")
@@ -281,7 +297,7 @@ def menuAdmin():
 
         dniCliente = int(input("Cliente al que desea retirar el dinero: "))
         if not comprobarDNI(dniCliente):
-            menuCliente()
+            menuAdmin()
 
         howMuchMoney = int(input("¿Cúanto dinero desea quitar? "))
 
