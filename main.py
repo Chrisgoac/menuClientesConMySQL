@@ -3,6 +3,8 @@ import hashlib as hl
 import mysql.connector as sql
 
 activeUser = 0
+letrasDNI = ["T", "R", "W", "A", "G", "M", "Y", "F", "P", "D", "X", "B", "N", "J", "Z", "S", "Q", "V", "H",
+             "L", "C", "K", "E"]
 
 # Configuración para conectar la base de datos.
 db = sql.connect(
@@ -99,56 +101,9 @@ def showDNI(dni):
     return False
 
 
-def getLetra(dni):
-    resto = dni % 23
-    if resto == 0:
-        return "T"
-    elif resto == 1:
-        return "R"
-    elif resto == 2:
-        return "W"
-    elif resto == 3:
-        return "A"
-    elif resto == 4:
-        return "G"
-    elif resto == 5:
-        return "M"
-    elif resto == 6:
-        return "Y"
-    elif resto == 7:
-        return "F"
-    elif resto == 8:
-        return "P"
-    elif resto == 9:
-        return "D"
-    elif resto == 10:
-        return "X"
-    elif resto == 11:
-        return "B"
-    elif resto == 12:
-        return "N"
-    elif resto == 13:
-        return "J"
-    elif resto == 14:
-        return "Z"
-    elif resto == 15:
-        return "S"
-    elif resto == 16:
-        return "Q"
-    elif resto == 17:
-        return "V"
-    elif resto == 18:
-        return "H"
-    elif resto == 19:
-        return "L"
-    elif resto == 20:
-        return "C"
-    elif resto == 21:
-        return "K"
-    elif resto == 22:
-        return "E"
-    else:
-        print("Error, el número de DNi que has especificado no es correcto.")
+def getLetra(dniInput):
+    resto = dniInput % 23
+    print(f"Letra: {letrasDNI[resto]}")
 
 
 def eraseDNI(dni):
@@ -303,12 +258,15 @@ def menuAdmin():
 
         if mOption == 0:
             # Salir
+            print("Ha salido del programa correctamente.")
 
         elif mOption == 1:
             # Quitar del banco
+            print("Ha salido del programa correctamente.")
 
         elif mOption == 2:
             # Quitar efectivo
+            print("Ha salido del programa correctamente.")
 
         menuCliente()
     elif opcion == 6:
@@ -345,5 +303,5 @@ def logIn():
     else:
         print("El usuario introducido no existe.")
 
-logIn()
 
+logIn()
